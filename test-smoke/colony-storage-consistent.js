@@ -3,7 +3,7 @@ const chai = require("chai");
 const bnChai = require("bn-chai");
 const BN = require("bn.js");
 
-const { UINT256_MAX, WAD } = require("../helpers/constants");
+const { UINT256_MAX, WAD, GLOBAL_SKILL_ID } = require("../helpers/constants");
 const { fundColonyWithTokens, setupColony } = require("../helpers/test-data-generator");
 
 const { expect } = chai;
@@ -26,7 +26,6 @@ contract("Contract Storage", (accounts) => {
 
   let colony;
   let token;
-  let localSkillId;
   let otherToken;
   let colonyNetwork;
   let metaColony;
@@ -43,12 +42,7 @@ contract("Contract Storage", (accounts) => {
 
     token = await Token.new("name", "symbol", 18);
     await token.unlock();
-
     colony = await setupColony(colonyNetwork, token.address);
-
-    await colony.addLocalSkill();
-    localSkillId = await colonyNetwork.getSkillCount();
-
     tokenLockingAddress = await colonyNetwork.getTokenLocking();
     const tokenAuthority = await TokenAuthority.new(token.address, colony.address, [tokenLockingAddress]);
     await token.setAuthority(tokenAuthority.address);
@@ -93,7 +87,7 @@ contract("Contract Storage", (accounts) => {
 
       await colony.setExpenditureRecipient(expenditureId, SLOT0, RECIPIENT, { from: ADMIN });
       await colony.setExpenditurePayout(expenditureId, SLOT0, token.address, WAD, { from: ADMIN });
-      await colony.setExpenditureSkills(expenditureId, [SLOT0], [localSkillId], { from: ADMIN });
+      await colony.setExpenditureSkill(expenditureId, SLOT0, GLOBAL_SKILL_ID, { from: ADMIN });
 
       const expenditure = await colony.getExpenditure(expenditureId);
       await colony.moveFundsBetweenPots(1, UINT256_MAX, UINT256_MAX, domain1.fundingPotId, expenditure.fundingPotId, WAD, token.address);
@@ -155,8 +149,8 @@ contract("Contract Storage", (accounts) => {
       console.log("miningCycleStateHash:", miningCycleStateHash);
       console.log("tokenLockingStateHash:", tokenLockingStateHash);
 
-      expect(colonyNetworkStateHash).to.equal("0xe2a19d28c1a68778bfe793623d1b9f71f43db3e98b46fef29f3ea1040968f26c");
-      expect(colonyStateHash).to.equal("0x58b09676f8fb26ec467b5bb8ea3392b6da0db191acc5ee2f400a0940ee79f4ce");
+      expect(colonyNetworkStateHash).to.equal("0x86d96511e525b165082c12aa3011fc47084b9cb6fac5cc770245c30e6289b545");
+      expect(colonyStateHash).to.equal("0x6143188270abcdb7dae0a147c7001d1b6a75063cdeb2a0c86196581d4dd33ebb");
       expect(metaColonyStateHash).to.equal("0xa09c107f9a66e313434ba2d6633e09c15fcb365db7678cf4dc4a19ca481a3954");
       expect(miningCycleStateHash).to.equal("0xfd18a690f69132bd95d32bf3a91cb2b60d0da16993cd60087bf8ccc1fa75b680");
       expect(tokenLockingStateHash).to.equal("0x0a66e763122dc805a1fcd36aa1f0cc40228ffa53ed050fec4ac78c70cad4d31a");
