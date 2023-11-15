@@ -3,7 +3,7 @@ const chai = require("chai");
 const bnChai = require("bn-chai");
 const BN = require("bn.js");
 
-const { UINT256_MAX, WAD, GLOBAL_SKILL_ID } = require("../helpers/constants");
+const { UINT256_MAX, WAD } = require("../helpers/constants");
 const { fundColonyWithTokens, setupColony } = require("../helpers/test-data-generator");
 
 const { expect } = chai;
@@ -26,23 +26,27 @@ contract("Contract Storage", (accounts) => {
 
   let colony;
   let token;
+  let localSkillId;
   let otherToken;
   let colonyNetwork;
   let metaColony;
-  let domain1;
   let tokenLockingAddress;
 
   before(async () => {
     // We use our own providers for these test(s) so we can really get in to it...
-
     const etherRouter = await EtherRouter.deployed();
     colonyNetwork = await IColonyNetwork.at(etherRouter.address);
+
     const metaColonyAddress = await colonyNetwork.getMetaColony();
     metaColony = await IMetaColony.at(metaColonyAddress);
 
     token = await Token.new("name", "symbol", 18);
     await token.unlock();
+
     colony = await setupColony(colonyNetwork, token.address);
+    await colony.addLocalSkill();
+    localSkillId = await colonyNetwork.getSkillCount();
+
     tokenLockingAddress = await colonyNetwork.getTokenLocking();
     const tokenAuthority = await TokenAuthority.new(token.address, colony.address, [tokenLockingAddress]);
     await token.setAuthority(tokenAuthority.address);
@@ -51,7 +55,6 @@ contract("Contract Storage", (accounts) => {
     await colony.setAdministrationRole(1, UINT256_MAX, ADMIN, 1, true);
     await colony.setArbitrationRole(1, UINT256_MAX, ARBITRATOR, 1, true);
     await fundColonyWithTokens(colony, token, UINT256_MAX);
-    domain1 = await colony.getDomain(1);
 
     otherToken = await Token.new("otherName", "otherSymbol", 18);
     await otherToken.unlock();
@@ -87,9 +90,11 @@ contract("Contract Storage", (accounts) => {
 
       await colony.setExpenditureRecipient(expenditureId, SLOT0, RECIPIENT, { from: ADMIN });
       await colony.setExpenditurePayout(expenditureId, SLOT0, token.address, WAD, { from: ADMIN });
-      await colony.setExpenditureSkill(expenditureId, SLOT0, GLOBAL_SKILL_ID, { from: ADMIN });
+      await colony.setExpenditureSkills(expenditureId, [SLOT0], [localSkillId], { from: ADMIN });
 
+      const domain1 = await colony.getDomain(1);
       const expenditure = await colony.getExpenditure(expenditureId);
+
       await colony.moveFundsBetweenPots(1, UINT256_MAX, UINT256_MAX, domain1.fundingPotId, expenditure.fundingPotId, WAD, token.address);
       await colony.finalizeExpenditure(expenditureId, { from: ADMIN });
       await colony.claimExpenditurePayout(expenditureId, SLOT0, token.address);
@@ -149,11 +154,11 @@ contract("Contract Storage", (accounts) => {
       console.log("miningCycleStateHash:", miningCycleStateHash);
       console.log("tokenLockingStateHash:", tokenLockingStateHash);
 
-      expect(colonyNetworkStateHash).to.equal("0x2c6fc254e50bd7e12db0278581a7902ab23709cf023cb931a2073e8b218638cf");
-      expect(colonyStateHash).to.equal("0x2422c452c5ed0d5d1a630a19529042e1e7b4479fc0988083b3423369ee8cc144");
-      expect(metaColonyStateHash).to.equal("0x60b0189dea488416bdeed0de728d7659775d697219137827d84c83e97210e7e9");
-      expect(miningCycleStateHash).to.equal("0xc9c36a48e266c74abc34de1ef3e522c9925d22941c41a307819c4460635bd260");
-      expect(tokenLockingStateHash).to.equal("0x3dc9cdaf6f43272b4d4485689bcd4f42e3e5d46de02ce2b3b5b33bde51cde7ee");
+      expect(colonyNetworkStateHash).to.equal("0xc9969a5ded913dccbe64a881d3cbf9dafc5c45d392d4135615dfc35b72571f46");
+      expect(colonyStateHash).to.equal("0x2f85ce412650d268036d61273d428cd57e69ccae75aa54795a72c9ddb764473e");
+      expect(metaColonyStateHash).to.equal("0xa09c107f9a66e313434ba2d6633e09c15fcb365db7678cf4dc4a19ca481a3954");
+      expect(miningCycleStateHash).to.equal("0xfd18a690f69132bd95d32bf3a91cb2b60d0da16993cd60087bf8ccc1fa75b680");
+      expect(tokenLockingStateHash).to.equal("0x0a66e763122dc805a1fcd36aa1f0cc40228ffa53ed050fec4ac78c70cad4d31a");
     });
   });
 });
