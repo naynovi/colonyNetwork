@@ -49,6 +49,12 @@ task("compile", "Compile Colony contracts with pinned Token").setAction(async ()
   fs.rmSync(path.resolve(__dirname, `${config.paths.artifacts}/safe-contracts/test`), { recursive: true, force: true });
 });
 
+task("deploy", "Deploy Colony Network as per truffle-fixture.js").setAction(async () => {
+  const deployNetwork = require("./test/truffle-fixture"); // eslint-disable-line global-require
+
+  await deployNetwork();
+});
+
 module.exports = {
   defaultNetwork: "hardhat",
   solidity: {
