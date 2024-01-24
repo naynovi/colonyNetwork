@@ -11,7 +11,7 @@ import TabItem from '@theme/TabItem';
 This guide will cover the basics of getting the Colony Network Smart Contracts running on your local development machine.
 
 :::info
-Keep in mind that following this guide will enable you to only _deploy_ and _run_ the contracts locally in order to develop software against the Colony API that needs an [RPC endpoint](https://eth.wiki/json-rpc/API) (like [ColonyJS](https://app.gitbook.com/o/-MTaEZ\_7xhxpButTDDNj/s/QcRjzRciEwod6UqfA3ta/) or the [Colony SDK](https://app.gitbook.com/o/-MTaEZ\_7xhxpButTDDNj/s/slSiNQHJDrgYgciBacVr/)). If you would like to work on the Colony Network contracts _themselves_, please see [Contributing](../contributing.md).
+Keep in mind that following this guide will enable you to only _deploy_ and _run_ the contracts locally in order to develop software against the Colony API that needs an [RPC endpoint](https://eth.wiki/json-rpc/API) (like [ColonyJS](https://github.com/JoinColony/colonyJS) or the [Colony SDK](https://github.com/JoinColony/colonySDK)). If you would like to work on the Colony Network contracts _themselves_, please see [Contributing](../contributing.md).
 :::
 
 ## Starting out
@@ -128,7 +128,7 @@ Check the logs of the `truffle migrate` command we issued earlier. The MetaColon
 
 Where to go from here? Well, you can try to issue a few more `eth_call` commands to retrieve data or even make a custom manual transaction?
 
-Or just go down the easy path! We created [Colony SDK](https://app.gitbook.com/o/-MTaEZ\_7xhxpButTDDNj/s/slSiNQHJDrgYgciBacVr/), to make it really easy to talk to the Colony contracts. With the knowledge you just acquired you can even test it out locally. Or try our more involved solution [ColonyJS](https://app.gitbook.com/o/-MTaEZ\_7xhxpButTDDNj/s/QcRjzRciEwod6UqfA3ta/) that is quite a bit more flexible - we're using it to power the Colony Dapp!
+Or just go down the easy path! We created [Colony SDK](https://github.com/JoinColony/colonySDK), to make it really easy to talk to the Colony contracts. With the knowledge you just acquired you can even test it out locally. Or try our more involved solution [ColonyJS](https://github.com/JoinColony/colonyJS) that is quite a bit more flexible - we're using it to power the Colony Dapp!
 
 ### Where to go from here?
 
